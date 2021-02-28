@@ -1,5 +1,7 @@
 import openpyxl as opx
 import os
+import re
+
 class Execl():
 
     def calculator(self,starttime, stoptime):
@@ -17,6 +19,21 @@ class Execl():
         m_sub = stop_m - start_m
         if m_sub < 0:
             h_sub = h_sub - 1
+        if h_sub < 0:
+            night_y = True
+            h_sub = 24 + h_sub
+            while True:
+                try:
+                    night = input("检测到您存在夜班，是否工资不同？如果不同，请输入加倍后的工资")
+                except:
+                    yes_or_no = input("您确定真的没有？[Y/N]")
+                    if yes_or_no == 'Y':
+                        continue
+                    else:
+                        night_y = False
+                        break
+                else:
+                    self.price = night
 
         try:
             trup = input("当天是否三薪[Y/N]")
@@ -24,14 +41,16 @@ class Execl():
             trup = 'N'
 
         if trup == 'Y':
-            return (h_sub + abs(m_sub) / 60 - self.relaxtime / 60) * 3
+            return [(h_sub + abs(m_sub) / 60 - self.relaxtime / 60) * 3,night_y]
         else:
-            return h_sub + abs(m_sub) / 60 - self.relaxtime / 60
+            return [h_sub + abs(m_sub) / 60 - self.relaxtime / 60,night_y]
 
     def readme(self):
-        print(f"工资计算器V0.1\n使用说明：\n1.把你的Excel文档放到这个文件夹下\n2.运行程序，复制文件名到黑框里（将文件后缀名一起复制）\n"
+        print(f"工资计算器\n使用说明："
+              f"\n1.把你的Excel文档放到这个文件夹下\n"
+              f"2.运行程序，复制文件名到黑框里（将文件后缀名一起复制）\n"
               f"3.回车按照提示一步步操作即可")
-        #j = os.system("pause")
+        j = os.system("pause")
         i = os.system('cls')
 
     def find_data(self):
@@ -70,7 +89,10 @@ class Execl():
         self.line_v = list()
 
         for item in line_i:
-            self.line_v.append(item.value)
+            around = re.search(r'\d',item.value).span()
+            value_s = item.value()
+            value = value_s[around[0]:]
+            self.line_v.append(value)
 
         del self.line_v[0]
         self.line_v.remove(input_value)
@@ -101,13 +123,15 @@ class Execl():
         i = 1
 
         self.locale_price = list()
+        self.night = list()
         for item in self.result:
-            print(f'第{i}日工资为:{item * self.price}')
-            self.locale_price.append(item*self.price)
+            print(f'第{i}日工资为:{item[0] * self.price}')
+            self.locale_price.append(item[0]*self.price)
+            self.night.append(item[1])
             i += 1
 
 
-        #k = os.system("pause")
+        k = os.system("pause")
 
 
 

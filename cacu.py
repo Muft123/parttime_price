@@ -33,14 +33,27 @@ class cacu():
         timedel = hourdelta + abs(minuitdelta) / 60
         return timedel
 
-    def cacuresult(self, price,isTriple):
+    def cacuresult(self, price,Triple,choose,t_o_p_value):
         self.timedel = self.getdelta(self.start,self.stop)
         self.result = price * (self.timedel - self.relax_time)
 
-        if isTriple == 0:
-            self.result = self.result * 3
+        self.night = False
 
-    def writer_to_excel(self,start=None,stop=None,relax=None,result=None):
+        if t_o_p_value == '':
+            pass
+        else:
+            t_o_p_value = float(t_o_p_value)
+
+        if Triple == 1:
+            self.result = self.result * 3
+        if choose == 1:
+            self.result = self.result * t_o_p_value
+            self.night = True
+        elif choose == 2:
+            self.result = self.result + t_o_p_value * self.timedel
+            self.night = True
+
+    def writer_to_excel(self,start=None,stop=None,relax=None,result=None,night=False):
 
         try:
             wb = openpyxl.load_workbook('My Table.xlsx')
@@ -49,7 +62,7 @@ class cacu():
             self.wb = openpyxl.Workbook()
             self.ws = self.wb.active
 
-            self.ws.append(['日期', '开始时间', '结束时间','休息时间', '当日工资'])
+            self.ws.append(['日期', '开始时间', '结束时间','休息时间','是否夜班', '当日工资'])
             tkinter.messagebox.showinfo('创建文件', 'Excel文件创建成功')
 
         else:
@@ -62,10 +75,10 @@ class cacu():
         date = datetime.datetime.strftime(date, '%Y-%m-%d')
 
         if result is None:
-            col = [date, self.start, self.stop, self.relax,self.result]
+            col = [date, self.start, self.stop, self.night ,self.relax,self.result]
             tkinter.messagebox.showinfo('工资结果', f'您当天的工资是{self.result}元')
         else:
-            col = [date, start, stop, relax, result]
+            col = [date, start, stop, relax, night, result]
 
 
         self.ws.append(col)
